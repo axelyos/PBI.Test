@@ -1,0 +1,102 @@
+﻿@model List<PBI.Test.BusinessLogic.Models.StockAnalysis>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+</script>
+<script src="~/DX/js/dx.all.js"></script>
+
+<h1>PBI Test</h1>
+
+@foreach (var m in Model)
+{
+    <p>@m.Stock MIN: @string.Format("{0:n2}", m.MinPrice)</p>
+    <p>@m.Stock MAX: @string.Format("{0:n2}", m.MaxPrice)</p>
+    <p>@m.Stock AVG: @string.Format("{0:n2}", m.AveragePrice)</p>
+    <p>@m.Stock Spike: @(string.Format("{0:n2}", m.MaxSpike?.Change))% at @(
+    string.Format("{0:dd/MM/yyyy}", m.MaxSpike?.Date))</p>
+    <p>@m.Stock ROI for @m.VolumeForROI shares from 01/01/2015 to @(string.Format("{0:dd/MM/yyyy}", m.DateForROI)): @(string.Format("{0:p2}", m.ROI))</p>
+
+    <div id="chart@(m.Stock)"></div>
+
+    <script>
+        var dataSource@(m.Stock) = [];
+
+        function LoadData@(m.Stock)() {
+            return $.ajax({
+                url: '/Home/GetChartData/?Security=@m.Stock',
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    dataSource@(m.Stock) = data;
+                }
+            });
+        }
+
+        $(function () {
+            var a1@(m.Stock) = LoadData@(m.Stock)();
+
+            $.when(a1@(m.Stock)).then(function () {
+                $("#chart@(m.Stock)").dxChart({
+                    title: "@(m.Stock) Stock Price",
+                    dataSource: dataSource@(m.Stock),
+                    commonSeriesSettings: {
+                        argumentField: "date",
+                        type: "candlestick"
+                    },
+                    legend: {
+                        itemTextPosition: 'left'
+                    },
+                    series: [
+                        {
+                            name: "@(m.Stock)",
+                            openValueField: "open",
+                            highValueField: "high",
+                            lowValueField: "low",
+                            closeValueField: "price",
+                            reduction: {
+                                color: "red"
+                            }
+                        }
+                    ],
+                    valueAxis: {
+                        tickInterval: 1,
+                        title: {
+                            text: "US dollars"
+                        },
+                        label: {
+                            format: {
+                                type: "currency",
+                                precision: 0
+                            }
+                        }
+                    },
+                    argumentAxis: {
+                        workdaysOnly: true,
+                        argumentType: 'datetime',
+                        label: {
+                            format: "shortDate"
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        location: "edge",
+                        customizeTooltip: function (arg) {
+                            return {
+                                text: "Open: $" + arg.openValue + "<br/>" +
+                                    "Close: $" + arg.closeValue + "<br/>" +
+                                    "High: $" + arg.highValue + "<br/>" +
+                                    "Low: $" + arg.lowValue + "<br/>"
+                            };
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@{
+}

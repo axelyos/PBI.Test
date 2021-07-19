@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="FileDump\GLW.csv" />
+    <None Remove="FileDump\GRUB.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="FileDump\GLW.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FileDump\GRUB.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PBI.Test.BusinessLogic\PBI.Test.BusinessLogic.csproj" />
+  </ItemGroup>
+
+</Project>
